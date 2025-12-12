@@ -24,6 +24,9 @@ const exp = require("constants");
 
 const app = express();
 
+// Trust proxy for ngrok and other proxies
+app.set("trust proxy", 1);
+
 // // Allow all origins (for development purposes only)
 // app.use(cors());
 
@@ -47,45 +50,60 @@ app.set("view engine", "pug");
 app.set("views", path.join(__dirname, "views"));
 //  Global middleware
 
-// // ✅ CSP Header for Mapbox
-// app.use((req, res, next) => {
-//   res.setHeader(
-//     "Content-Security-Policy",
-//     "default-src 'self'; script-src 'self' https://api.mapbox.com; style-src 'self' https://api.mapbox.com;"
-//   );
-//   next();
-// });
 // serving static files // Any files within that directory will be accessible to clients making requests to the Express.js server.
 app.use(express.static(path.join(__dirname, "starter/public")));
+
+// Handle favicon request
+app.get("/favicon.ico", (req, res) => {
+  res.status(204).send(); // No Content - suppress 404
+});
 
 app.get("/.well-known/appspecific/com.chrome.devtools.json", (req, res) => {
   res.status(204).send(); // No Content
 });
 
-//Use helmet to protect HTTP Header
-app.use(helmet()); // This is what we have for now
-
-//Add the following
-// Further HELMET configuration for Security Policy (CSP)
+//Use helmet to protect HTTP Header with CSP configuration
 app.use(
   helmet.contentSecurityPolicy({
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "https://unpkg.com"],
+      scriptSrc: [
+        "'self'",
+        "https://unpkg.com",
+        "https://api.mapbox.com",
+        "https://js.stripe.com",
+      ],
       styleSrc: [
         "'self'",
         "'unsafe-inline'",
         "https://unpkg.com",
         "https://fonts.googleapis.com",
+        "https://api.mapbox.com",
       ],
       connectSrc: [
         "'self'",
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
         "https://unpkg.com",
         "https://tile.openstreetmap.org",
         "https://{s}.tile.openstreetmap.org",
+        "https://*.tiles.mapbox.com",
+        "https://api.mapbox.com",
+        "https://events.mapbox.com",
+        "https://accept.paymob.com",
+        "ws://localhost:*",
       ],
-      imgSrc: ["'self'", "data:", "blob:", "https://tile.openstreetmap.org"],
+      imgSrc: [
+        "'self'",
+        "data:",
+        "blob:",
+        "https://tile.openstreetmap.org",
+        "https://*.tiles.mapbox.com",
+        "https://api.mapbox.com",
+      ],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      workerSrc: ["'self'", "blob:"],
+      childSrc: ["'self'", "blob:"],
     },
   })
 );

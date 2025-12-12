@@ -1,0 +1,13 @@
+extends base
+
+block content
+  main.main
+    .payment-result
+      .payment-result__icon
+        svg.payment-result__icon--success
+          use(xlink:href='/img/icons.svg#icon-check')
+      h1.heading-primary Payment Successful!
+      p.payment-result__text Your booking has been confirmed. Thank you for choosing Natours!
+      p.payment-result__text You will receive a confirmation email shortly.
+      a.btn.btn--green(href='/me#bookings') View My Bookings
+      a.btn.btn--white(href='/') Browse More Tours

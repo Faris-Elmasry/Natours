@@ -1,22 +1,25 @@
-const express = require('express');
-const bookingController = require('./../controller/bookingController');
-const authController = require('./../controller/authController');
+const express = require("express");
+const bookingController = require("./../controller/bookingController");
+const authController = require("./../controller/authController");
 
 const router = express.Router();
 
+// Webhook route must be BEFORE authentication middleware
+router.post("/webhook", bookingController.webhookCheckout);
+
 router.use(authController.protect);
 
-router.get('/checkout-session/:tourId', bookingController.getCheckoutSession);
+router.get("/checkout-session/:tourId", bookingController.getCheckoutSession);
 
-router.use(authController.restrictTo('admin', 'lead-guide'));
+router.use(authController.restrictTo("admin", "lead-guide"));
 
 router
-  .route('/')
+  .route("/")
   .get(bookingController.getAllBookings)
   .post(bookingController.createBooking);
 
 router
-  .route('/:id')
+  .route("/:id")
   .get(bookingController.getBooking)
   .patch(bookingController.updateBooking)
   .delete(bookingController.deleteBooking);

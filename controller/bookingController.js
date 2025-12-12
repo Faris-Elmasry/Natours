@@ -116,10 +116,15 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   // 5) Get payment key
   const paymentToken = await getPaymentKey(authToken, orderId, tour, req.user);
 
-  // 6) Send PayMob iframe URL as response
+  // 6) Send PayMob iframe URL as response with success/error callbacks
+  const successUrl = `${req.protocol}://${req.get("host")}/payment-success`;
+  const errorUrl = `${req.protocol}://${req.get("host")}/payment-error`;
+
   res.status(200).json({
     status: "success",
-    paymentUrl: `https://accept.paymob.com/api/acceptance/iframes/854223?payment_token=${paymentToken}`,
+    paymentUrl: `https://accept.paymob.com/api/acceptance/iframes/854223?payment_token=${paymentToken}&success_url=${encodeURIComponent(
+      successUrl
+    )}&error_url=${encodeURIComponent(errorUrl)}`,
   });
 });
 
@@ -128,7 +133,9 @@ const createBookingCheckout = async (paymentData) => {
   try {
     // Extract tour name from payment data
     const tourName = paymentData.order.items[0]?.name?.replace(" Tour", "");
-    const userEmail = paymentData.order.shipping_data?.email;
+    const userEmail =
+      paymentData.data?.billing_data?.email ||
+      paymentData.order?.shipping_data?.email;
 
     if (!tourName || !userEmail) {
       console.error("⚠️  Missing tour name or user email in payment data");

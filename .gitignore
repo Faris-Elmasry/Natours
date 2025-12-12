@@ -31,6 +31,13 @@ dist/
 build/
 coverage/
 
+# Source maps (don't expose in production)
+*.map
+bundle.js.map
+
+# Documentation (dev only)
+FEATURE_IMPLEMENTATION.md
+
 # Others
 *.pem
 *.key

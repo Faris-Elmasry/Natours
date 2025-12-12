@@ -1,0 +1,13 @@
+extends base
+
+block content
+  main.main
+    .payment-result
+      .payment-result__icon
+        svg.payment-result__icon--error
+          use(xlink:href='/img/icons.svg#icon-x')
+      h1.heading-primary Payment Failed
+      p.payment-result__text Unfortunately, your payment could not be processed.
+      p.payment-result__text Please try again or contact support if the problem persists.
+      a.btn.btn--green(href='/') Try Again
+      a.btn.btn--white(href='/me') My Account

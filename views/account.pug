@@ -12,28 +12,25 @@ block content
     .user-view
       nav.user-view__menu
         ul.side-nav
-          +navItem('#', 'Settings', 'settings', true)
-          +navItem('#', 'My bookings', 'briefcase')
-          +navItem('#', 'My reviews', 'star')
-          +navItem('#', 'Billing', 'credit-card')
+          +navItem('#settings', 'Settings', 'settings', true)
+          +navItem('#bookings', 'My bookings', 'briefcase')
+          +navItem('#reviews', 'My reviews', 'star')
+          +navItem('#billing', 'Billing', 'credit-card')
 
         - if (user.role === 'admin')
           .admin-nav
             h5.admin-nav__heading Admin
             ul.side-nav
-              +navItem('#', 'Manage tours', 'map')
-              +navItem('#', 'Manage users', 'users')
-              +navItem('#', 'Manage reviews', 'star')
-              +navItem('#', 'Manage bookings', 'briefcase')
+              +navItem('#manage-tours', 'Manage tours', 'map')
+              +navItem('#manage-users', 'Manage users', 'users')
+              +navItem('#manage-reviews', 'Manage reviews', 'star')
+              +navItem('#manage-bookings', 'Manage bookings', 'briefcase')
 
       .user-view__content
-        .user-view__form-container
+        // SETTINGS SECTION (Default)
+        #settings.user-view__form-container.active
           h2.heading-secondary.ma-bt-md Your account settings
           
-          //- WITHOUT API
-          //- form.form.form-user-data(action='/submit-user-data' method='POST')
-          
-          //- WITH API
           form.form.form-user-data
             .form__group
               label.form__label(for='name') Name
@@ -50,7 +47,7 @@ block content
               
         .line &nbsp;
         
-        .user-view__form-container
+        #settings.user-view__form-container
           h2.heading-secondary.ma-bt-md Password change
           form.form.form-user-password
             .form__group
@@ -64,3 +61,45 @@ block content
               input#password-confirm.form__input(type='password', placeholder='••••••••', required, minlength='8')
             .form__group.right
               button.btn.btn--small.btn--green.btn--save-password Save password
+
+        // MY BOOKINGS SECTION
+        #bookings.user-view__form-container
+          h2.heading-secondary.ma-bt-md My Bookings
+          #bookings-container Loading bookings...
+
+        // MY REVIEWS SECTION
+        #reviews.user-view__form-container
+          h2.heading-secondary.ma-bt-md My Reviews
+          #reviews-container Loading reviews...
+
+        // BILLING SECTION
+        #billing.user-view__form-container
+          h2.heading-secondary.ma-bt-md Billing Information
+          #billing-container
+            p(style='color: #999;') Billing history will be displayed here.
+
+        // ADMIN SECTIONS (Only visible to admins)
+        - if (user.role === 'admin')
+          .line &nbsp;
+
+          #manage-tours.user-view__form-container.user-view__form-container--wide
+            h2.heading-secondary.ma-bt-md Manage Tours
+            #admin-tours-container Loading tours...
+
+          .line &nbsp;
+
+          #manage-users.user-view__form-container.user-view__form-container--wide
+            h2.heading-secondary.ma-bt-md Manage Users
+            #admin-users-container Loading users...
+
+          .line &nbsp;
+
+          #manage-reviews.user-view__form-container.user-view__form-container--wide
+            h2.heading-secondary.ma-bt-md Manage Reviews
+            #admin-reviews-container Loading reviews...
+
+          .line &nbsp;
+
+          #manage-bookings.user-view__form-container.user-view__form-container--wide
+            h2.heading-secondary.ma-bt-md Manage Bookings
+            #admin-bookings-container Loading bookings...

@@ -1,24 +1,47 @@
-console.log('Leaflet map loaded');
-
+/* eslint-disable */
 export const displayMap = (locations) => {
-  const map = L.map('map', { zoomControl: false });
+  mapboxgl.accessToken =
+    'pk.eyJ1IjoiZmFyaXMzd2F3YSIsImEiOiJjbWozZXpqcnUwdTlpM2RzNGl5MzU2dzd1In0.6GPJLU-b7IXzSUaRSVKG9Q';
 
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap contributors',
-  }).addTo(map);
-
-  const points = [];
-
-  locations.forEach((loc) => {
-    points.push([loc.coordinates[1], loc.coordinates[0]]);
-    L.marker([loc.coordinates[1], loc.coordinates[0]])
-      .addTo(map)
-      .bindPopup(`<p>Day ${loc.day}: ${loc.description}</p>`)
-      .openPopup();
+  var map = new mapboxgl.Map({
+    container: 'map',
+    style: 'mapbox://styles/mapbox/streets-v12',
+    scrollZoom: false,
   });
 
-  const bounds = L.latLngBounds(points).pad(0.5);
-  map.fitBounds(bounds);
+  const bounds = new mapboxgl.LngLatBounds();
 
-  map.scrollWheelZoom.disable();
+  locations.forEach((loc) => {
+    // Create marker
+    const el = document.createElement('div');
+    el.className = 'marker';
+
+    // Add marker
+    new mapboxgl.Marker({
+      element: el,
+      anchor: 'bottom',
+    })
+      .setLngLat(loc.coordinates)
+      .addTo(map);
+
+    // Add popup
+    new mapboxgl.Popup({
+      offset: 30,
+    })
+      .setLngLat(loc.coordinates)
+      .setHTML(`<p>Day ${loc.day}: ${loc.description}</p>`)
+      .addTo(map);
+
+    // Extend map bounds to include current location
+    bounds.extend(loc.coordinates);
+  });
+
+  map.fitBounds(bounds, {
+    padding: {
+      top: 200,
+      bottom: 150,
+      left: 100,
+      right: 100,
+    },
+  });
 };

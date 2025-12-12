@@ -1,4 +1,6 @@
 const Tour = require("../model/Toursmodel");
+const User = require("../model/Usermodel");
+const Booking = require("../model/bookingModel");
 const catchAsync = require("../utilties/catchAsync");
 const AppError = require("./../utilties/appError");
 
@@ -31,7 +33,7 @@ exports.getTour = catchAsync(async (req, res, next) => {
       .status(200)
       .set(
         "Content-Security-Policy",
-        "connect-src https://*.tiles.mapbox.com https://api.mapbox.com https://events.mapbox.com"
+        "default-src 'self'; script-src 'self' https://unpkg.com https://api.mapbox.com blob:; style-src 'self' 'unsafe-inline' https://unpkg.com https://fonts.googleapis.com https://api.mapbox.com; connect-src 'self' http://localhost:3000 http://127.0.0.1:3000 https://unpkg.com https://tile.openstreetmap.org https://*.tiles.mapbox.com https://api.mapbox.com https://events.mapbox.com https://accept.paymob.com ws://localhost:*; img-src 'self' data: blob: https://tile.openstreetmap.org https://*.tiles.mapbox.com https://api.mapbox.com; font-src 'self' https://fonts.gstatic.com; worker-src 'self' blob:; child-src 'self' blob:"
       )
       .render("tour", {
         title: `${tour.name} Tour`,
@@ -44,12 +46,15 @@ exports.getTour = catchAsync(async (req, res, next) => {
 });
 
 exports.getloginform = catchAsync(async (req, res, next) => {
-  res
-    .status(200)
+  res.status(200).render("login", {
+    title: "Log into your account",
+  });
+});
 
-    .render("login", {
-      title: "User Login",
-    });
+exports.getSignupForm = catchAsync(async (req, res, next) => {
+  res.status(200).render("signup", {
+    title: "Create your account",
+  });
 });
 
 exports.getAccount = (req, res) => {
@@ -91,3 +96,36 @@ exports.updateUserData = catchAsync(async (req, res, next) => {
     user: updatedUser,
   });
 });
+
+exports.getPaymentSuccess = catchAsync(async (req, res) => {
+  // Paymob sends all transaction data as query parameters
+  const { success, error_occured, order, id } = req.query;
+
+  console.log("💳 Payment callback received:", {
+    success,
+    error_occured,
+    orderId: order,
+    transactionId: id,
+  });
+
+  // Check if payment was successful
+  if (success === "true" && error_occured === "false") {
+    return res.status(200).render("paymentSuccess", {
+      title: "Payment Successful",
+    });
+  }
+
+  // Payment failed or error occurred
+  res.status(200).render("paymentError", {
+    title: "Payment Failed",
+  });
+});
+
+exports.getPaymentError = (req, res) => {
+  // Fallback error page
+  console.log("❌ Payment error page accessed:", req.query);
+
+  res.status(200).render("paymentError", {
+    title: "Payment Failed",
+  });
+};
