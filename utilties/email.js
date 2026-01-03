@@ -1,6 +1,7 @@
 const nodemailer = require("nodemailer");
 const pug = require("pug");
 const { convert } = require("html-to-text");
+const AppError = require("./appError");
 
 module.exports = class Email {
   constructor(user, url) {
@@ -85,7 +86,7 @@ module.exports = class Email {
       await this.newTransport().sendMail(mailOptions);
     } catch (error) {
       console.error("Error sending email:", error);
-      throw new Error("There was an error sending the email. Try again later.");
+      throw new AppError("There was an error sending the email. Try again later.", 500);
     }
   }
 
