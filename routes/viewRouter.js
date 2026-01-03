@@ -20,4 +20,10 @@ router.get("/my-tours", authController.protect, viewcontroller.getMyTours);
 router.get("/payment-success", viewcontroller.getPaymentSuccess);
 router.get("/payment-error", viewcontroller.getPaymentError);
 
+// Admin Routes
+router.get("/create-tour", authController.protect, authController.restrictTo('admin'), viewcontroller.getCreateTourForm);
+router.get("/edit-tour/:id", authController.protect, authController.restrictTo('admin'), viewcontroller.getEditTourForm);
+router.get("/create-user", authController.protect, authController.restrictTo('admin'), viewcontroller.getCreateUserForm);
+router.get("/edit-user/:id", authController.protect, authController.restrictTo('admin'), viewcontroller.getEditUserForm);
+
 module.exports = router;

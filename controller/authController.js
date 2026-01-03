@@ -6,7 +6,6 @@ const AppError = require("./../utilties/appError");
 const Email = require("./../utilties/email");
 const jwt = require("jsonwebtoken");
 
-
 const signtoken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRE_IN,
@@ -37,31 +36,21 @@ const CreateandSendToken = (user, statuscode, res) => {
 };
 
 exports.Signup = catchAsync(async (req, res, next) => {
-  try {
-    const newUser = await User.create({
-      name: req.body.name,
-      email: req.body.email,
-      password: req.body.password,
-      confpassword: req.body.confpassword,
-      passwordChagedAt: req.body.passwordChagedAt,
-      role: req.body.role,
-    });
+  const newUser = await User.create({
+    name: req.body.name,
+    email: req.body.email,
+    password: req.body.password,
+    confpassword: req.body.confpassword,
+    passwordChagedAt: req.body.passwordChagedAt,
+    role: req.body.role,
+  });
 
+  //127.0.0.1://3000  {{URL}}api/v1/users/updateMe
+  const url = `${req.protocol}://${req.get("host")}/me`;
+  console.log(url);
 
-    //127.0.0.1://3000  {{URL}}api/v1/users/updateMe
-    const url = `${req.protocol}://${req.get("host")}/me`;
-    console.log(url);
-
-    await new Email(newUser, url).sendWelcome();
-    CreateandSendToken(newUser, 201, res);
-  } catch (error) {
-    console.error("Error during signup:", error);
-    res.status(500).json({
-      status: "error",
-      message:
-        "There was an error processing your signup. Please try again later.",
-    });
-  }
+  await new Email(newUser, url).sendWelcome();
+  CreateandSendToken(newUser, 201, res);
 });
 
 exports.login = catchAsync(async (req, res, next) => {
@@ -265,4 +254,22 @@ exports.updatepassword = catchAsync(async (req, res, next) => {
 
   //4) log user in send JWT
   CreateandSendToken(user, 200, res);
+});
+
+// Google OAuth Callback
+exports.googleAuthCallback = catchAsync(async (req, res, next) => {
+  // User is authenticated via Passport, create JWT token and set cookie
+  const token = signtoken(req.user._id);
+  const cookieOptions = {
+    expires: new Date(
+      Date.now() + process.env.JWT_COOKIE_EXPIRE_IN * 24 * 60 * 60 * 1000
+    ),
+    httpOnly: true,
+  };
+  if (process.env.NODE_ENV === "production") cookieOptions.secure = true;
+
+  res.cookie("jwt", token, cookieOptions);
+
+  // Redirect to account page
+  res.redirect("/me");
 });

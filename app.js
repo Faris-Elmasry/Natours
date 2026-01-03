@@ -8,6 +8,8 @@ const xss = require("xss-clean");
 const hpp = require("hpp");
 const path = require("path");
 const cookieParser = require("cookie-parser");
+const session = require("express-session");
+const passport = require("./config/passport");
 const AppError = require("./utilties/appError");
 const GloabalErrorhandler = require("./controller/errorHandler");
 const cors = require("cors");
@@ -16,6 +18,7 @@ const toursRouter = require("./routes/toursRouter");
 const usersRouter = require("./routes/usersRouter");
 const reviewRouter = require("./routes/reviewRouter");
 const viewRouter = require("./routes/viewRouter");
+const authRouter = require("./routes/authRouter");
 
 const bookingRouter = require("./routes/bookingRoutes");
 const bookingController = require("./controller/bookingController");
@@ -129,6 +132,25 @@ app.use("/api", Limiter);
 app.use(express.json({ limit: "10kb" }));
 app.use(express.urlencoded({ extended: true, limit: "10kb" }));
 app.use(cookieParser());
+
+// Session configuration (required for Passport)
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+    },
+  })
+);
+
+// Initialize Passport
+app.use(passport.initialize());
+app.use(passport.session());
+
 //Data sanitization aggainst NOSQL -query injection
 app.use(mongoSanitize());
 
@@ -177,6 +199,7 @@ app.get("/bundle.js.map", (req, res) => {
 });
 
 app.use("/", viewRouter);
+app.use("/auth", authRouter);
 app.use("/api/v1/tours", toursRouter);
 app.use("/api/v1/users", usersRouter);
 app.use("/api/v1/reviews", reviewRouter);

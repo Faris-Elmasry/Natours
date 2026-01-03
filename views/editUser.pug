@@ -1,0 +1,74 @@
+extends base
+
+block content
+  main.main
+    .login-form
+      h2.heading-secondary.ma-bt-lg= title
+      form.form.form--user-edit(data-id=userToEdit ? userToEdit.id : '')
+        .form__group
+          label.form__label(for='name') Name
+          input#name.form__input(type='text', name='name', required, value=userToEdit ? userToEdit.name : '')
+        .form__group
+          label.form__label(for='email') Email address
+          input#email.form__input(type='email', name='email', required, value=userToEdit ? userToEdit.email : '')
+        .form__group
+          label.form__label(for='role') Role
+          select#role.form__input(name='role')
+            option(value='user', selected=userToEdit && userToEdit.role==='user') User
+            option(value='guide', selected=userToEdit && userToEdit.role==='guide') Guide
+            option(value='lead-guide', selected=userToEdit && userToEdit.role==='lead-guide') Lead Guide
+            option(value='admin', selected=userToEdit && userToEdit.role==='admin') Admin
+        
+        if !userToEdit
+          .form__group
+            label.form__label(for='password') Password
+            input#password.form__input(type='password', name='password', required, minlength='8')
+          .form__group
+            label.form__label(for='passwordConfirm') Confirm Password
+            input#passwordConfirm.form__input(type='password', name='passwordConfirm', required, minlength='8')
+
+        .form__group
+          button.btn.btn--green= userToEdit ? 'Update User' : 'Create User'
+
+  script(src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js")
+  script.
+    const userForm = document.querySelector('.form--user-edit');
+    if (userForm) {
+      userForm.addEventListener('submit', async e => {
+        e.preventDefault();
+        const id = userForm.dataset.id;
+        
+        // Simple JSON object for user
+        const data = {
+          name: document.getElementById('name').value,
+          email: document.getElementById('email').value,
+          role: document.getElementById('role').value
+        };
+
+        if (document.getElementById('password')) {
+           data.password = document.getElementById('password').value;
+           data.passwordConfirm = document.getElementById('passwordConfirm').value;
+        }
+
+        const url = id ? `/api/v1/users/${id}` : '/api/v1/users';
+        const method = id ? 'PATCH' : 'POST';
+        
+        try {
+          const res = await axios({
+            method,
+            url,
+            data
+          });
+          
+          if (res.data.status === 'success' || res.data.status === 'sucess') {
+             alert(`${id ? 'Updated' : 'Created'} successfully!`);
+             window.setTimeout(() => {
+               location.assign('/me');
+             }, 1500);
+          }
+        } catch (err) {
+          console.error(err);
+          alert(err.response ? err.response.data.message : 'Error processing request');
+        }
+      });
+    }

@@ -1,6 +1,7 @@
 const Tour = require("../model/Toursmodel");
 const User = require("../model/Usermodel");
 const Booking = require("../model/bookingModel");
+const Review = require("../model/Reviewmodel");
 const catchAsync = require("../utilties/catchAsync");
 const AppError = require("./../utilties/appError");
 
@@ -57,11 +58,26 @@ exports.getSignupForm = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.getAccount = (req, res) => {
+exports.getAccount = catchAsync(async (req, res, next) => {
+  // 1) Find all bookings
+  const bookings = await Booking.find({ user: req.user.id });
+
+  // 2) Find tours with the returned IDs
+  const tourIDs = bookings.map((el) => el.tour);
+  const myTours = await Tour.find({ _id: { $in: tourIDs } });
+
+  // 3) Find reviews
+  const myReviews = await Review.find({ user: req.user.id }).populate({
+    path: "tour",
+    select: "name imageCover",
+  });
+
   res.status(200).render("account", {
     title: "Your account",
+    myTours,
+    myReviews,
   });
-};
+});
 
 exports.getMyTours = catchAsync(async (req, res, next) => {
   // 1) Find all bookings
@@ -129,3 +145,35 @@ exports.getPaymentError = (req, res) => {
     title: "Payment Failed",
   });
 };
+
+exports.getCreateTourForm = catchAsync(async (req, res, next) => {
+  res.status(200).render("editTour", {
+    title: "Create New Tour",
+  });
+});
+
+exports.getEditTourForm = catchAsync(async (req, res, next) => {
+  const tour = await Tour.findById(req.params.id);
+  if (!tour) return next(new AppError('No tour found with that ID', 404));
+
+  res.status(200).render("editTour", {
+    title: `Edit ${tour.name}`,
+    tour,
+  });
+});
+
+exports.getCreateUserForm = catchAsync(async (req, res, next) => {
+  res.status(200).render("editUser", {
+    title: "Create New User",
+  });
+});
+
+exports.getEditUserForm = catchAsync(async (req, res, next) => {
+  const userToEdit = await User.findById(req.params.id);
+  if (!userToEdit) return next(new AppError('No user found with that ID', 404));
+
+  res.status(200).render("editUser", {
+    title: `Edit ${userToEdit.name}`,
+    userToEdit,
+  });
+});

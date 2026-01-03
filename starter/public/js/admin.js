@@ -230,7 +230,10 @@ export const renderAdminTours = (container) => {
             <svg class="admin-panel__icon"><use xlink:href="/img/icons.svg#icon-map"></use></svg>
             Tours Management
           </h3>
-          <span class="admin-panel__count">${total} tours</span>
+          <div class="admin-panel__header-actions" style="display: flex; align-items: center; gap: 1rem;">
+             <a href="/create-tour" class="btn btn--small btn--green">Create New Tour</a>
+             <span class="admin-panel__count">${total} tours</span>
+          </div>
         </div>
         
         <div class="admin-panel__controls">
@@ -321,11 +324,11 @@ export const renderAdminTours = (container) => {
                         }" class="admin-panel__btn admin-panel__btn--view" title="View">
                           <svg><use xlink:href="/img/icons.svg#icon-eye"></use></svg>
                         </a>
-                        <button class="admin-panel__btn admin-panel__btn--edit" data-id="${
+                        <a href="/edit-tour/${
                           tour._id
-                        }" title="Edit">
+                        }" class="admin-panel__btn admin-panel__btn--edit" title="Edit">
                           <svg><use xlink:href="/img/icons.svg#icon-edit"></use></svg>
-                        </button>
+                        </a>
                         <button class="admin-panel__btn admin-panel__btn--delete" data-id="${
                           tour._id
                         }" title="Delete">
@@ -441,7 +444,10 @@ export const renderAdminUsers = (container) => {
             <svg class="admin-panel__icon"><use xlink:href="/img/icons.svg#icon-users"></use></svg>
             Users Management
           </h3>
-          <span class="admin-panel__count">${total} users</span>
+          <div class="admin-panel__header-actions" style="display: flex; align-items: center; gap: 1rem;">
+            <a href="/create-user" class="btn btn--small btn--green">Create New User</a>
+            <span class="admin-panel__count">${total} users</span>
+          </div>
         </div>
         
         <div class="admin-panel__controls">
@@ -511,9 +517,9 @@ export const renderAdminUsers = (container) => {
                     <td><span class="admin-panel__badge admin-panel__badge--${user.role}">${user.role}</span></td>
                     <td>
                       <div class="admin-panel__actions">
-                        <button class="admin-panel__btn admin-panel__btn--edit" data-id="${user._id}" title="Edit">
+                        <a href="/edit-user/${user._id}" class="admin-panel__btn admin-panel__btn--edit" title="Edit">
                           <svg><use xlink:href="/img/icons.svg#icon-edit"></use></svg>
-                        </button>
+                        </a>
                         <button class="admin-panel__btn admin-panel__btn--delete" data-id="${user._id}" title="Delete">
                           <svg><use xlink:href="/img/icons.svg#icon-trash"></use></svg>
                         </button>

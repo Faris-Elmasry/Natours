@@ -92,12 +92,7 @@ exports.deleteMe = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.CreateUser = (req, res) => {
-  res.status(505).json({
-    status: "error",
-    messsage: "this route is not allowed please user signUp",
-  });
-};
+exports.CreateUser = factory.createone(User);
 
 exports.GetUser = factory.getone(User);
 exports.GetAllUsers = factory.getall(User);

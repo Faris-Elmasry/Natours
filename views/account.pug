@@ -14,7 +14,8 @@ block content
         ul.side-nav
           +navItem('#settings', 'Settings', 'settings', true)
           +navItem('#bookings', 'My bookings', 'briefcase')
-          +navItem('#reviews', 'My reviews', 'star')
+          - if (user.role === 'user')
+            +navItem('#reviews', 'My reviews', 'star')
           +navItem('#billing', 'Billing', 'credit-card')
 
         - if (user.role === 'admin')
@@ -39,7 +40,8 @@ block content
               label.form__label(for='email') Email address
               input#email.form__input(type='email', value=`${user.email}`, required, name='email')
             .form__group.form__photo-upload
-              img.form__user-photo(src=`/img/users/${user.photo}`, alt='User photo')
+              - const photoUrl = user.photo.startsWith('http') ? user.photo : `/img/users/${user.photo}`
+              img.form__user-photo(src=photoUrl, alt='User photo')
               input.form__upload(type='file', accept='image/*', id='photo', name='photo')
               label(for='photo') Choose new photo
             .form__group.right
@@ -65,12 +67,40 @@ block content
         // MY BOOKINGS SECTION
         #bookings.user-view__form-container
           h2.heading-secondary.ma-bt-md My Bookings
-          #bookings-container Loading bookings...
+          .user-view__card-container
+            if myTours && myTours.length > 0
+              each tour in myTours
+                 .card(style="margin-bottom: 20px; width: 100%;")
+                   .card__header
+                     .card__picture
+                        .card__picture-overlay &nbsp;
+                        img.card__picture-img(src=`/img/tours/${tour.imageCover}`, alt=`${tour.name}`)
+                     h3.heading-tertirary
+                        span= tour.name
+                   .card__details
+                      p.card__text(style="margin-bottom: 10px;")= tour.summary
+                      a.btn.btn--green.btn--small(href=`/tour/${tour.slug}`) View Tour
+            else
+              p You have not booked any tours yet.
 
         // MY REVIEWS SECTION
-        #reviews.user-view__form-container
-          h2.heading-secondary.ma-bt-md My Reviews
-          #reviews-container Loading reviews...
+        - if (user.role === 'user')
+          #reviews.user-view__form-container
+            h2.heading-secondary.ma-bt-md My Reviews
+            .user-view__card-container
+              if myReviews && myReviews.length > 0
+                each review in myReviews
+                  .reviews__card
+                    .reviews__avatar
+                      img.reviews__avatar-img(src=`/img/tours/${review.tour.imageCover}`, alt=`${review.tour.name}`)
+                      h6.reviews__user= review.tour.name
+                    p.reviews__text= review.review
+                    .reviews__rating
+                      each star in [1, 2, 3, 4, 5]
+                        svg.reviews__star(class=`reviews__star--${review.rating >= star ? 'active' : 'inactive'}`)
+                          use(xlink:href='/img/icons.svg#icon-star')
+              else
+                 p You have not written any reviews yet.
 
         // BILLING SECTION
         #billing.user-view__form-container

@@ -1,0 +1,82 @@
+extends base
+
+block content
+  main.main
+    .login-form
+      h2.heading-secondary.ma-bt-lg= title
+      form.form.form--tour(data-id=tour ? tour.id : '')
+        .form__group
+          label.form__label(for='name') Tour Name
+          input#name.form__input(type='text', name='name', placeholder='The Forest Hiker', required, value=tour ? tour.name : '')
+        .form__group
+          label.form__label(for='duration') Duration (days)
+          input#duration.form__input(type='number', name='duration', required, value=tour ? tour.duration : '')
+        .form__group
+          label.form__label(for='maxGroupSize') Max Group Size
+          input#maxGroupSize.form__input(type='number', name='maxGroupSize', required, value=tour ? tour.maxGroupSize : '')
+        .form__group
+          label.form__label(for='difficulty') Difficulty
+          select#difficulty.form__input(name='difficulty')
+            option(value='easy', selected=tour && tour.difficulty==='easy') Easy
+            option(value='medium', selected=tour && tour.difficulty==='medium') Medium
+            option(value='difficult', selected=tour && tour.difficulty==='difficult') Difficult
+        .form__group
+          label.form__label(for='price') Price
+          input#price.form__input(type='number', name='price', required, value=tour ? tour.price : '')
+        .form__group
+          label.form__label(for='summary') Summary
+          textarea#summary.form__input(name='summary', rows='3', required)= tour ? tour.summary : ''
+        .form__group
+          label.form__label(for='description') Description
+          textarea#description.form__input(name='description', rows='5')= tour ? tour.description : ''
+        
+        .form__group
+          label.form__label(for='imageCover') Cover Image
+          input#imageCover.form__upload(type='file', accept='image/*', name='imageCover')
+          label(for='imageCover') Choose cover image
+
+        .form__group
+          button.btn.btn--green= tour ? 'Update Tour' : 'Create Tour'
+
+  script(src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js")
+  script.
+    const tourForm = document.querySelector('.form--tour');
+    if (tourForm) {
+      tourForm.addEventListener('submit', async e => {
+        e.preventDefault();
+        const form = new FormData();
+        form.append('name', document.getElementById('name').value);
+        form.append('duration', document.getElementById('duration').value);
+        form.append('maxGroupSize', document.getElementById('maxGroupSize').value);
+        form.append('difficulty', document.getElementById('difficulty').value);
+        form.append('price', document.getElementById('price').value);
+        form.append('summary', document.getElementById('summary').value);
+        form.append('description', document.getElementById('description').value);
+        
+        if (document.getElementById('imageCover').files[0]) {
+           form.append('imageCover', document.getElementById('imageCover').files[0]);
+        }
+        
+        const id = tourForm.dataset.id;
+        const url = id ? `/api/v1/tours/${id}` : '/api/v1/tours';
+        const method = id ? 'PATCH' : 'POST';
+        
+        try {
+          const res = await axios({
+            method,
+            url,
+            data: form,
+          });
+          
+          if (res.data.status === 'success') {
+             alert(`${id ? 'Updated' : 'Created'} successfully!`);
+             window.setTimeout(() => {
+               location.assign('/me'); 
+             }, 1500);
+          }
+        } catch (err) {
+          console.error(err);
+          alert(err.response ? err.response.data.message : 'Error processing request');
+        }
+      });
+    }

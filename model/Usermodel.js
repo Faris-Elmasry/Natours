@@ -15,6 +15,17 @@ const Userschema = new mongoose.Schema({
   },
   photo: { type: String, default: "default.jpg" },
 
+  // Google OAuth
+  googleId: {
+    type: String,
+    unique: true,
+    sparse: true, // Allows null values to be non-unique
+  },
+  emailVerified: {
+    type: Boolean,
+    default: false,
+  },
+
   role: {
     type: String,
     enum: ["user", "admin", "guide", "lead-guide"],
